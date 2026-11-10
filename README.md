@@ -33,3 +33,6 @@ To try it before hosting: run `python -m http.server 8000` in this folder, then 
 - Speed depends on the phone. Expect a few checks per second, shown under the raw count. That is plenty for a queue.
 - Crowds that overlap heavily are undercounted. A high, angled camera helps most. You can use `yolov8s.onnx` for better accuracy if the phone copes (change `modelUrl` in `app.js`).
 - Check your university's rules and put up a notice that a camera counts people at the stop.
+
+View the entire Camera Module - gdg-hwud-26.netlify.app
+
