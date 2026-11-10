@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFC72C">
+<title>Shuttle stop counter</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF6DC;--panel:#FFFDF5;--ink:#3A2D05;--line:#3A2D05;--soft:#FFE9A3;--pale:#FFF1BF;--busy:#FFD34D;--hot:#F5A800;--yellow:#FFC72C;--amber:#E8A900;--brown:#3A2D05}
+@media (prefers-color-scheme:dark){:root{--bg:#2A2108;--panel:#3A2D05;--ink:#FFF1BF;--line:#9C7F1F;--soft:#4A3A0A;--pale:#4A3A0A}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;line-height:1.45;
+ padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+.wrap{max-width:1000px;margin:0 auto;padding:14px 14px 30px}
+.banner{background:var(--yellow);color:var(--brown);border:3px solid var(--brown);border-radius:14px;padding:12px 18px;margin-bottom:14px}
+.banner h1{margin:0;font-size:clamp(1.4rem,5vw,2rem);font-weight:800;letter-spacing:-.01em}
+.banner p{margin:3px 0 0;font-size:.95rem}
+.layout{display:grid;grid-template-columns:3fr 2fr;gap:14px}
+@media (max-width:820px){.layout{grid-template-columns:1fr}}
+.cam{position:relative;aspect-ratio:4/3;background:var(--brown);border:3px solid var(--line);border-radius:12px;overflow:hidden}
+.cam video,.cam canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#FFF6DC;font-weight:600;z-index:2;background:rgba(58,45,5,.55)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+button{font:inherit;font-weight:700;min-height:46px;padding:8px 16px;border:2px solid var(--brown);border-radius:10px;background:var(--yellow);color:var(--brown);cursor:pointer}
+button.alt{background:var(--soft)} button:disabled{opacity:.6}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.sign{background:var(--yellow);color:var(--brown);border:4px solid var(--brown);border-radius:18px;padding:12px 18px;text-align:center;margin-bottom:12px}
+.sign .num{font-size:5.5rem;font-weight:800;line-height:1}
+.sign .lbl{font-weight:600}
+.status{border:3px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:800;font-size:1.25rem;margin-bottom:12px;background:var(--pale)}
+.status small{display:block;font-weight:400;font-size:.95rem;margin-top:2px}
+.status.busy{background:var(--busy);color:var(--brown)}
+.status.dispatch{background:var(--hot);color:var(--brown);border-color:var(--brown)}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.k{font-size:.9rem;font-weight:600;opacity:.8}.v{font-size:1.6rem;font-weight:800}.sub{font-size:.9rem;opacity:.85}
+.meter{height:16px;background:var(--pale);border:2px solid var(--line);border-radius:10px;overflow:hidden;margin-top:6px}
+.meter>div{height:100%;background:var(--amber);width:0;transition:width .3s}
+details{background:var(--soft);border:2px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:12px}
+summary{font-weight:700;cursor:pointer;min-height:32px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+label{font-size:.9rem;font-weight:600;display:block}
+input,select{width:100%;min-height:42px;font:inherit;padding:6px 10px;border:2px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="banner"><h1>🚌 Shuttle stop counter</h1>
+ <p>Point this phone at the waiting area. Video stays on the phone. Only counts are saved or sent.</p></div>
+
+ <div class="layout">
+  <div>
+   <div class="cam" id="camBox">
+    <video id="video" playsinline muted></video>
+    <canvas id="ovl" aria-label="Camera view with the waiting area and detected people"></canvas>
+    <div id="msg"></div>
+   </div>
+   <div class="row">
+    <button id="start" type="button">Start camera</button>
+    <button id="edit" type="button" class="alt">Edit waiting area</button>
+    <button id="reset" type="button" class="alt">Reset area</button>
+   </div>
+  </div>
+  <div>
+   <div class="sign"><div class="num" id="num">0</div><div class="lbl">people waiting</div></div>
+   <div class="status" id="status" aria-live="polite">Calm</div>
+   <div class="card"><div class="k" id="shareK">Share of one shuttle</div><div class="v" id="share">0%</div><div class="meter"><div id="bar"></div></div></div>
+   <div class="card"><div class="k">People in the area right now (unsmoothed)</div><div class="v" id="raw">0</div><div class="sub" id="fps"></div></div>
+  </div>
+ </div>
+
+ <details><summary>Settings</summary>
+  <div class="fields">
+   <div><label for="stop">Stop name</label><input id="stop"></div>
+   <div><label for="cap">People one shuttle carries</label><input id="cap" type="number" min="5" max="200" inputmode="numeric"></div>
+   <div><label for="busy">Busy from (% of a shuttle)</label><input id="busy" type="number" min="10" max="100" inputmode="numeric"></div>
+   <div><label for="dispatch">Send extra shuttle from (%)</label><input id="dispatch" type="number" min="10" max="150" inputmode="numeric"></div>
+   <div><label for="smooth">Smooth over (seconds)</label><input id="smooth" type="number" min="3" max="120" inputmode="numeric"></div>
+   <div><label for="conf">Minimum confidence (%)</label><input id="conf" type="number" min="10" max="90" inputmode="numeric"></div>
+   <div><label for="facing">Camera</label><select id="facing"><option value="environment">Back camera</option><option value="user">Front camera</option></select></div>
+  </div>
+ </details>
+
+ <details><summary>Saving and sharing counts</summary>
+  <div class="fields">
+   <div style="grid-column:1/-1"><label for="report">Send counts to this address every 30 s (optional)</label>
+   <input id="report" type="url" placeholder="https://your-server.example/api/counts"></div>
+  </div>
+  <p class="sub" id="reportState"></p>
+  <div class="row"><button id="download" type="button" class="alt">Download counts (CSV)</button>
+  <button id="clearLog" type="button" class="alt">Clear saved counts</button></div>
+  <p class="sub" id="logCount"></p>
+ </details>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

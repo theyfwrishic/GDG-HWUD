@@ -1,0 +1,19 @@
+{
+  "rules": {
+    "bus": {
+      ".write": "newData.child('code').val() === 'CHANGE-THIS-SECRET'",
+      ".validate": "newData.hasChildren(['code', 'pos'])",
+      "code": { ".validate": "newData.isString()" },
+      "pos": {
+        ".read": true,
+        ".validate": "newData.hasChildren(['lat', 'lng', 'ts'])",
+        "lat": { ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90" },
+        "lng": { ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180" },
+        "ts": { ".validate": "newData.isNumber()" },
+        "speed_kmh": { ".validate": "newData.isNumber()" },
+        "heading": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
