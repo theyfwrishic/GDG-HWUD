@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniLoop prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#FFFDF2;--surface:#fff;--ink:#231B00;--muted:#6F6540;--line:#F0E3A6;--y:#FFC700;--ys:#FFF3BF;--yi:#231B00;--ok:#1E7A3C;--bad:#B3261E;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161200;--surface:#241E06;--ink:#FFF7D6;--muted:#CDBF86;--line:#4A3F10;--ys:#3A3105;--ok:#5CCB84;--bad:#FF8A80}}
+:root[data-theme="dark"]{--bg:#161200;--surface:#241E06;--ink:#FFF7D6;--muted:#CDBF86;--line:#4A3F10;--ys:#3A3105;--ok:#5CCB84;--bad:#FF8A80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+.box{width:100%;max-width:440px;margin:0 auto;padding:0 16px}
+body[data-w="wide"] .box{max-width:980px}
+header{display:flex;align-items:center;gap:10px;padding-top:16px;padding-bottom:6px}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--y);color:var(--yi);display:grid;place-items:center;font-weight:800;font-size:20px}
+h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+#chip{font-size:12px;color:var(--muted)}
+#screen{padding-bottom:100px}
+#navw{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:2px solid var(--y);padding-bottom:env(safe-area-inset-bottom,0px)}
+#nav{display:flex;gap:4px;padding-top:6px;padding-bottom:6px}
+#nav button{flex:1;border:0;background:none;color:var(--muted);font:600 14px inherit;font-family:inherit;padding:10px 2px;border-radius:10px;cursor:pointer}
+#nav button[aria-current="page"]{background:var(--y);color:var(--yi)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.card h2{margin:0 0 8px;font-size:16px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+select,input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}
+.btn{display:block;width:100%;margin-top:14px;border:0;border-radius:12px;padding:12px;font:700 15px inherit;font-family:inherit;background:var(--y);color:var(--yi);cursor:pointer}
+.btn.alt{background:var(--ys)}.btn.bad{background:none;color:var(--bad);border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{width:auto;margin:0;padding:8px 14px}
+.seg{display:flex;background:var(--ys);border-radius:12px;padding:4px;margin-top:10px}
+.seg button{flex:1;border:0;background:none;font:600 14px inherit;font-family:inherit;color:var(--ink);padding:8px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--y)}
+.ride{cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit;display:block}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.name{font-weight:700;font-size:17px}.meta{color:var(--muted);font-size:13px}
+.match{font-weight:800;font-size:18px;background:var(--y);color:var(--yi);border-radius:10px;padding:2px 10px}
+.pill{display:inline-block;font-size:12px;padding:3px 9px;border-radius:99px;background:var(--ys);margin:8px 6px 0 0}
+.pill.ok{color:var(--ok);font-weight:600}.pill.warn{color:var(--bad);font-weight:600}
+.note{font-size:13px;color:var(--muted);border-left:4px solid var(--y);padding-left:10px;margin:12px 0}
+.steps{display:flex;gap:6px;margin:12px 0}.steps i{flex:1;height:6px;border-radius:9px;background:var(--line)}.steps i.on{background:var(--y)}
+.chat{max-height:190px;overflow:auto;display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.msg{max-width:80%;padding:8px 12px;border-radius:14px;background:var(--ys);font-size:14px}.msg.me{align-self:flex-end;background:var(--y);color:var(--yi)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+svg.map{width:100%;height:auto;border-radius:12px;background:var(--ys)}
+.sn{font:800 11px inherit;fill:var(--y)}
+.legend{font-size:12px;color:var(--muted);margin:6px 0 0}
+.stars button{font-size:30px;background:none;border:0;cursor:pointer;color:var(--line)}.stars button.on{color:var(--y)}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.sim{font-size:12px;color:var(--muted);text-align:center;margin:8px 0}
+.l2{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--ys);border-radius:12px;padding:10px;text-align:center}.stat b{display:block;font-size:24px;font-weight:800}.stat span{font-size:12px;color:var(--muted)}
+.rec{border:2px solid var(--y);border-radius:14px;padding:12px;background:var(--ys)}.rec b{font-size:17px}
+#toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;display:none;z-index:9;max-width:90%}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="box"><header><div class="logo">U</div><div><h1>UniLoop</h1><div id="chip"></div></div></header></div>
+<main class="box" id="screen"></main>
+<nav id="navw"><div class="box" id="nav"></div></nav>
+<div id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s);
+const AREAS={"Al Nahda":[25.29,55.37],"Deira":[25.27,55.32],"Karama":[25.245,55.30],"Al Barsha":[25.10,55.20],"JLT":[25.07,55.15],"Silicon Oasis":[25.125,55.38]};
+const RIDES=[
+{id:1,name:"Omar K.",car:"White Toyota Corolla",from:"Al Nahda",dep:"07:30",seats:3,ver:true,rating:4.9,trips:42,pickup:"Al Nahda Metro gate"},
+{id:2,name:"Sara M.",car:"Grey Nissan Sunny",from:"Deira",dep:"07:15",seats:1,ver:true,rating:4.8,trips:27,pickup:"Union Metro exit 2"},
+{id:3,name:"Yusuf A.",car:"Black Kia Seltos",from:"Silicon Oasis",dep:"08:10",seats:2,ver:true,rating:4.7,trips:15,pickup:"DSO Central Park"},
+{id:4,name:"Hana R.",car:"Blue Honda Civic",from:"Al Barsha",dep:"07:00",seats:2,ver:false,rating:0,trips:2,pickup:"Mall of the Emirates, north"},
+{id:5,name:"Dev P.",car:"Silver Hyundai Elantra",from:"Karama",dep:"07:50",seats:0,ver:true,rating:4.6,trips:33,pickup:"Karama Centre"}];
+const PROV=[
+{id:1,name:"Falcon Student Transport",areas:["Al Nahda","Deira","Karama"],price:350,time:"Sun–Thu, 6:30–18:00",veh:"30-seat bus"},
+{id:2,name:"BlueLine Minibus",areas:["Al Barsha","JLT"],price:420,time:"Mon–Fri, 6:45–17:30",veh:"14-seat minibus"},
+{id:3,name:"Oasis Express",areas:["Silicon Oasis"],price:250,time:"Sun–Thu, 7:00–16:00",veh:"20-seat minibus"}];
+const LAP=16,RT="M60 130 C 70 40 190 30 250 60 S 330 130 270 150 S 90 175 60 130Z";
+const S={user:null,tab:"rides",sub:"find",q:{from:"Al Nahda",uni:"Heriot-Watt Dubai",time:"07:45"},results:null,sel:null,trip:null,off:null,chats:{},pf:{area:"Any",max:"Any"},pc:null,tm:null,focus:null,
+sh:[{n:"Shuttle 1",p:.3,seats:14,on:true},{n:"Shuttle 2",p:.8,seats:9,on:true},{n:"Extra shuttle",p:0,seats:30,on:false}],
+w:18,peak:false,hist:[],left:0,log:[],snooze:0,tk:0,notify:false,toasted:false,dk:""};
+const toMin=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
+const opts=(o,v)=>o.map(x=>`<option${x===v?" selected":""}>${x}</option>`).join("");
+const first=n=>n.split(" ")[0];
+function km(a,b){const r=Math.PI/180,dl=(b[0]-a[0])*r,dg=(b[1]-a[1])*r,x=Math.sin(dl/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dg/2)**2;return 12742*Math.asin(Math.sqrt(x))}
+function score(r,q){const d=km(AREAS[q.from],AREAS[r.from]),dt=Math.abs(toMin(r.dep)-toMin(q.time));
+ const m=.5*Math.max(0,1-d/20)+.3*Math.max(0,1-dt/60)+.1*(r.seats>0)+.1*r.ver;return{...r,d,dt,detour:Math.round(d*.6),match:Math.round(m*100)}}
+function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display="none",3000)}
+function clock(){const m=420+Math.round(S.tk/6);return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function addLog(t){S.log.unshift(clock()+" "+t);S.log=S.log.slice(0,6)}
+function post(k,t,me){(S.chats[k]=S.chats[k]||[]).push({t,me})}
+function chat(k,chips){const m=S.chats[k]||[];return `<div class="chat" id="chat">${m.map(x=>`<div class="msg${x.me?" me":""}">${x.t}</div>`).join("")||`<p class="meta">No messages yet.</p>`}</div>
+ <div class="chips">${chips.map(c=>`<button data-a="say" data-k="${k}" data-t="${c}">${c}</button>`).join("")}</div>
+ <div class="row" style="margin-top:8px"><input id="cin" placeholder="Write a message" aria-label="Message"><button class="btn sm" style="flex:none" data-a="send" data-k="${k}">Send</button></div>`}
+function send(k,t){post(k,t,true);S.focus=1;setTimeout(()=>{post(k,k[0]==="p"?"Thanks for getting in touch. We’ll confirm availability on your route within the hour.":"Got it, see you soon.");render()},1200)}
+
+function map(pre){return `<svg class="map" viewBox="0 0 340 190" role="img" aria-label="Shuttle route map"><path id="${pre}r" d="${RT}" fill="none" stroke="var(--y)" stroke-width="9" stroke-linejoin="round"/><path d="${RT}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 5" opacity=".5"/>
+ <circle cx="60" cy="130" r="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/><rect id="${pre}c" width="16" height="16" rx="4" fill="var(--y)" stroke="var(--ink)" stroke-width="2.5"/>
+ ${[0,1,2].map(i=>`<g id="${pre}s${i}"><circle r="11" fill="var(--ink)"/><text y="4" text-anchor="middle" class="sn">${i<2?i+1:"+"}</text></g>`).join("")}</svg>
+ <p class="legend">Hollow dot: metro pickup. Yellow square: campus. Numbered dots: shuttles.</p>`}
+
+function onboard(){return `<div class="card"><div class="name">Verify you’re a student</div><p class="meta">Use your university email. Drivers also submit licence and vehicle documents before they can offer rides.</p>
+ <label for="ou">University</label><select id="ou">${opts(["Heriot-Watt Dubai","BITS Pilani Dubai"],"Heriot-Watt Dubai")}</select>
+ <label for="oe">University email</label><input id="oe" type="email" placeholder="name@university.ac.ae"><button class="btn" data-a="verify">Verify and continue</button><p class="sim">Demo only: any email address works.</p></div>`}
+
+function rides(){const seg=`<div class="seg">${[["find","Find a ride"],["offer","Offer a ride"],["trip","My trip"]].map(([k,l])=>`<button data-a="sub" data-k="${k}" aria-pressed="${S.sub===k}">${l}</button>`).join("")}</div>`;
+ return seg+(S.sub==="find"?find():S.sub==="offer"?offer():trip())}
+
+function find(){
+ if(S.sel){const r=S.sel;return `<div class="card"><button class="btn alt sm" data-a="back" style="margin-bottom:12px">Back to results</button>
+ <div class="top"><div><div class="name">${r.name}</div><div class="meta">${r.car}</div></div><div class="match">${r.match}%</div></div>
+ <span class="pill${r.ver?" ok":""}">${r.ver?"Verified driver":"Verification pending"}</span><span class="pill">${r.seats} seat${r.seats===1?"":"s"} left</span><span class="pill">Leaves ${r.dep}</span>
+ <p class="meta" style="margin-top:12px">Pickup: <b style="color:var(--ink)">${r.pickup}</b><br>About ${r.d.toFixed(1)} km from you, around ${r.detour} min detour for the driver.<br>${r.ver?`${r.rating} rating from ${r.trips} trips.`:"New driver, only 2 trips so far."}</p>
+ <p class="note">Rides are free in this pilot. Cost-sharing stays off until the UAE rules on paid student carpools are clarified.</p>
+ <button class="btn" data-a="request"${r.seats?"":" disabled"}>${r.seats?"Request a seat":"This ride is full"}</button></div>`}
+ const q=S.q;let h=`<div class="card"><label for="f">Pickup area</label><select id="f">${opts(Object.keys(AREAS),q.from)}</select>
+ <label for="u">Going to</label><select id="u">${opts(["Heriot-Watt Dubai","BITS Pilani Dubai"],q.uni)}</select>
+ <label for="t">Arrive around</label><input id="t" type="time" value="${q.time}"><button class="btn" data-a="search">Find rides</button></div>`;
+ if(S.results){h+=S.results.length?S.results.map(r=>`<button class="card ride" data-a="open" data-id="${r.id}"><div class="top"><div><div class="name">${r.name}</div><div class="meta">${r.from} · leaves ${r.dep}</div></div><div class="match">${r.match}%</div></div>
+ <span class="pill${r.ver?" ok":""}">${r.ver?"Verified":"Pending"}</span><span class="pill">${r.seats} seats</span><span class="pill">${r.d.toFixed(1)} km away</span></button>`).join(""):`<div class="empty">No rides for that route yet. Try a wider time window.</div>`;
+ h+=`<p class="sim">Ranked by pickup distance, departure time, seats and verification. Demo data.</p>`}
+ return h}
+
+function offer(){const o=S.off;let h=`<div class="card"><h2>Offer a ride</h2><label for="of">Starting area</label><select id="of">${opts(Object.keys(AREAS),"Al Nahda")}</select>
+ <div class="row"><div><label for="ot">Departure</label><input id="ot" type="time" value="07:30"></div><div><label for="os">Seats</label><select id="os">${opts(["1","2","3","4"],"3")}</select></div></div>
+ <label for="op">Pickup point</label><input id="op" value="Al Nahda Metro gate"><p class="note">Drivers must have a verified licence, vehicle registration and insurance.</p><button class="btn" data-a="publish">Publish ride</button></div>`;
+ if(o){h+=`<div class="card"><div class="top"><div class="name">Your ride is live</div><span class="pill ok">Published</span></div><p class="meta">${o.from} to campus, ${o.t}, ${o.s} seats. Eligible students can now find it.</p>`;
+ if(o.req==="none")h+=`<button class="btn alt" data-a="simreq">Simulate a student request</button>`;
+ if(o.req==="open")h+=`<div class="note"><b>Layla, ${S.user.uni}</b> wants a seat from ${o.from}.</div><div class="row"><button class="btn" data-a="acc">Accept</button><button class="btn bad" data-a="dec">Decline</button></div>`;
+ if(o.req==="acc")h+=`<p class="meta" style="color:var(--ok)">Layla is confirmed. ${o.s-1} seat${o.s-1===1?"":"s"} left.</p>`;
+ if(o.req==="dec")h+=`<p class="meta">Request declined. Your ride stays open.</p>`;h+=`</div>`}
+ return h}
+
+function trip(){const t=S.trip;if(!t)return `<div class="empty"><b>No trip yet</b><br>Request a seat from Find a ride and it will appear here.</div>`;
+ const r=t.ride,st=["pending","accepted","live","done"].indexOf(t.status);let h=`<div class="steps">${[0,1,2,3].map(i=>`<i class="${i<=st?"on":""}"></i>`).join("")}</div>`;
+ if(t.status==="pending")return h+`<div class="card"><div class="name">Request sent</div><p class="meta">Waiting for ${first(r.name)} to accept. This usually takes a minute.</p><button class="btn bad" data-a="cancel">Cancel request</button></div>`;
+ if(t.status==="done")return h+`<div class="card"><div class="name">You’ve arrived</div><p class="meta">How was your ride with ${first(r.name)}?</p><div class="stars">${[1,2,3,4,5].map(n=>`<button data-a="rate" data-n="${n}" class="${n<=t.rating?"on":""}" aria-label="${n} stars">★</button>`).join("")}</div>${t.rating?`<p class="meta">Thanks, your rating helps other students choose.</p><button class="btn alt" data-a="reset">Done</button>`:""}</div>`;
+ const live=t.status==="live";
+ return h+`<div class="card"><div class="top"><div><div class="name">${live?"On the way to campus":"Seat confirmed"}</div><div class="meta">${r.name} · ${r.car}<br>Pickup: ${r.pickup}, ${r.dep}</div></div><div class="match" id="eta" style="${live?"":"display:none"}">${Math.max(1,Math.ceil((1-t.p)*14))} min</div></div>
+ <svg class="map" viewBox="0 0 340 170" role="img" aria-label="Journey map"><path id="tr" d="M30 140 C 90 130, 110 40, 180 70 S 280 120, 312 38" fill="none" stroke="var(--y)" stroke-width="8" stroke-linecap="round"/><circle cx="30" cy="140" r="7" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/><rect x="304" y="30" width="16" height="16" rx="4" fill="var(--y)" stroke="var(--ink)" stroke-width="2.5"/><circle id="car" r="10" fill="var(--ink)" stroke="var(--y)" stroke-width="3" cx="30" cy="140"/></svg>
+ ${live?`<button class="btn" data-a="finish">I’ve arrived</button>`:`<button class="btn" data-a="start">Start journey (simulated)</button>`}</div>
+ <div class="card"><h2>Chat with ${first(r.name)}</h2>${chat("c",["I’m at the pickup point","Running 5 min late","Thanks!"])}</div><p class="sim">Live location is only shared during an active journey.</p>`}
+
+function prov(){const f=S.pf;const list=PROV.filter(p=>(f.area==="Any"||p.areas.includes(f.area))&&(f.max==="Any"||p.price<=+f.max));
+ return `<div class="card"><h2>Private transport providers</h2><div class="row"><div><label for="pa">Area</label><select id="pa">${opts(["Any",...Object.keys(AREAS)],f.area)}</select></div><div><label for="pm">Max price (AED/month)</label><select id="pm">${opts(["Any","300","400","500"],f.max)}</select></div></div></div>`+
+ (list.length?list.map(p=>`<div class="card"><div class="top"><div class="name">${p.name}</div><span class="pill ok" style="margin:0">Licence verified</span></div>
+ <p class="meta">${p.veh} · ${p.time}<br>Serves: ${p.areas.join(", ")}<br>Both campuses</p><div class="top"><b>AED ${p.price}/month</b><button class="btn sm" data-a="enq" data-id="${p.id}">${S.pc===p.id?"Close":"Send enquiry"}</button></div>
+ ${S.pc===p.id?chat("p"+p.id,["Is there a seat on weekdays?","What is the pickup time?"]):""}</div>`).join(""):`<div class="empty">No providers match. Try another area or price.</div>`)+`<p class="sim">Demo listings. Real providers must submit trade and transport licences.</p>`}
+
+function shuttle(){return `<div class="card"><h2>Live shuttle map</h2>${map("st")}<div id="shList"></div>
+ <button class="btn alt" data-a="notify">Notify me when a shuttle is close</button></div>
+ <div class="card"><h2>Timetable</h2><p class="meta">Guaranteed baseline from the metro pickup: 07:00, 07:15, 07:30, 07:45, 08:00. Extra shuttles run when demand is high.</p></div>
+ <p class="sim">Positions are simulated at ×20 demo speed. Not a live university deployment.</p>`}
+
+function admin(){return `<div class="card"><div class="top"><div><div class="name">Transport admin</div><div class="meta">${S.user.uni} · demo account</div></div><span class="pill" style="margin:0">Simulated data</span></div><div class="stats" id="admStats" style="margin-top:12px"></div></div>
+ <div class="grid"><div><div class="card"><h2>Live fleet map</h2>${map("ad")}</div>
+ <div class="card"><h2>Pickup camera counter</h2><svg viewBox="0 0 300 130" id="admDots" role="img" aria-label="People detected" style="width:100%;background:var(--ys);border-radius:12px"></svg>
+ <p class="meta">Anonymous count only. No faces, no identities, no stored video.</p>
+ <div class="row" style="margin-top:8px"><button class="btn alt sm" data-a="add">+10 waiting</button><button class="btn alt sm" data-a="less">−10 waiting</button><button class="btn alt sm" data-a="peak" id="pk"></button></div></div></div>
+ <div><div class="card"><h2>Dispatch centre</h2><div class="rec"><b id="recT"></b><div class="meta" id="recN"></div></div><div id="admAct"></div></div>
+ <div class="card"><h2>Vehicles</h2><div id="admVeh"></div></div>
+ <div class="card"><h2>Waiting over time</h2><svg viewBox="0 0 300 70" id="admChart" style="width:100%"></svg></div>
+ <div class="card"><h2>Audit log</h2><div id="admLog" class="meta"></div></div></div></div>
+ <p class="sim">Demand and GPS are simulated at ×20 demo speed. Dispatch is always human-approved.</p>`}
+
+function rec(){const a=S.sh.filter(s=>s.on),rate=S.peak?4:1.5;
+ if(!a.length)return{key:"none",title:"No shuttle available",why:"Alert the operator and show an updated ETA.",pct:0,seats:0,eta:0,proj:Math.round(S.w)};
+ const n=a.reduce((m,s)=>s.p>m.p?s:m,a[0]),eta=(1-n.p)*LAP,proj=S.w+rate*eta,pct=Math.round(Math.min(n.seats/Math.max(proj,1),1.5)*100);let key,title,why;
+ if(S.sh[2].on){key="wait";title="Extra shuttle approved and on its way";why="Monitoring until it boards."}
+ else if(pct>=100){key="ok";title="Maintain scheduled service";why="Incoming seats cover expected demand."}
+ else if(pct>=75){key="mon";title="Monitor demand";why="Demand is close to incoming capacity."}
+ else if(pct<40&&eta>10){key="esc";title="Escalate to administrator";why="The next shuttle is far away and demand is high."}
+ else{key="dis";title="Dispatch a supplementary shuttle";why="Waiting demand will exceed incoming capacity."}
+ return{key,title,why,pct,seats:n.seats,eta:Math.round(eta),proj:Math.round(proj)}}
+
+function paintMaps(){["st","ad"].forEach(pre=>{const p=$("#"+pre+"r");if(!p)return;const L=p.getTotalLength();
+ S.sh.forEach((s,i)=>{const g=$("#"+pre+"s"+i),pt=p.getPointAtLength(L*s.p);g.setAttribute("transform",`translate(${pt.x} ${pt.y})`);g.style.display=s.on?"":"none"});
+ const c=p.getPointAtLength(L*.5),m=$("#"+pre+"c");m.setAttribute("x",c.x-8);m.setAttribute("y",c.y-8)})}
+function paint(){paintMaps();const r=rec(),eta=s=>Math.max(1,Math.round((1-s.p)*LAP)),act=S.sh.filter(s=>s.on);
+ const L=$("#shList");if(L)L.innerHTML=act.map(s=>`<div class="l2"><b>${s.n}</b><span class="pill ${s.seats<5?"warn":"ok"}" style="margin:0">${s.seats<5?"Almost full":s.seats+" seats free"}</span><span>${eta(s)<=2?"Arriving":"Arrives in "+eta(s)+" min"}</span></div>`).join("")||`<p class="meta">No shuttles running right now.</p>`;
+ if(!$("#admStats"))return;
+ $("#admStats").innerHTML=[[act.length,"Active shuttles"],[Math.round(S.w),"Waiting now"],[S.left,"Left behind"],[r.pct+"%","Capacity cover"]].map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+ $("#pk").textContent="Peak hour: "+(S.peak?"on":"off");
+ $("#recT").textContent=r.title;$("#recN").textContent=`${r.proj} expected, ${r.seats} seats arriving in ${r.eta} min. ${r.why}`;
+ const can=(r.key==="dis"||r.key==="esc")&&S.tk>=S.snooze,dk=r.key+can;
+ if(dk!==S.dk){S.dk=dk;$("#admAct").innerHTML=can?`<div class="row"><button class="btn" data-a="approve">Approve</button><button class="btn bad" data-a="reject">Reject</button></div>`:`<p class="meta" style="margin-top:8px">${r.key==="none"?"":S.tk<S.snooze&&(r.key==="dis"||r.key==="esc")?"Recommendation snoozed after rejection.":"No action needed."}</p>`}
+ $("#admVeh").innerHTML=S.sh.map(s=>`<div class="l2"><b>${s.n}</b><span>${s.on?s.seats+" seats free":"Standby"}</span><span>${s.on?eta(s)+" min":"–"}</span></div>`).join("");
+ const n=Math.min(60,Math.round(S.w));$("#admDots").innerHTML=Array.from({length:n},(_,i)=>`<circle cx="${16+(i%12)*24+(i*7%5)}" cy="${16+Math.floor(i/12)*22+(i*3%6)}" r="7" fill="var(--y)" stroke="var(--ink)" stroke-width="1.5"/>`).join("");
+ const h=S.hist,pts=h.map((v,i)=>`${(i*300/39).toFixed(1)},${(66-Math.min(v,60)/60*62).toFixed(1)}`).join(" ");
+ $("#admChart").innerHTML=h.length>1?`<polygon points="0,68 ${pts} ${((h.length-1)*300/39).toFixed(1)},68" fill="var(--y)" opacity=".5"/><polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2"/>`:"";
+ $("#admLog").innerHTML=S.log.map(x=>`<div>${x}</div>`).join("")||"No events yet."}
+
+function board(s){const b=Math.min(s.seats,Math.floor(S.w));S.w-=b;const l=Math.floor(S.w);S.left+=l;addLog(`${s.n} boarded ${b}${l?`, ${l} left behind`:""}`);s.seats=6+Math.floor(Math.random()*17);if(s===S.sh[2]){s.on=false;addLog("Extra shuttle returned to depot")}}
+function tick(){S.tk++;S.w+=(S.peak?4:1.5)/6;S.sh.forEach(s=>{if(!s.on)return;s.p+=.0104;if(s.p>=1){s.p-=1;board(s)}});
+ S.hist.push(Math.round(S.w));S.hist=S.hist.slice(-40);
+ const a=S.sh.filter(s=>s.on),e=a.length?(1-Math.max(...a.map(s=>s.p)))*LAP:99;
+ if(S.notify&&!S.toasted&&e<=2){S.toasted=true;toast("A shuttle is arriving in about 2 minutes.")}if(e>8)S.toasted=false;paint()}
+setInterval(()=>{if(S.user)tick()},500);
+
+function placeCar(){const p=$("#tr"),c=$("#car");if(!p||!c||!S.trip)return;const t=S.trip,pt=p.getPointAtLength(p.getTotalLength()*(t.status==="live"||t.status==="done"?t.p:0));c.setAttribute("cx",pt.x);c.setAttribute("cy",pt.y)}
+function render(){document.body.dataset.w=S.tab==="admin"?"wide":"";$("#chip").textContent=S.user?"Verified student · "+S.user.uni:"Not verified yet";$("#navw").style.display=S.user?"block":"none";
+ if(!S.user){$("#screen").innerHTML=onboard();return}
+ $("#nav").innerHTML=[["rides","Rides"],["prov","Providers"],["shuttle","Shuttle"],["admin","Admin"]].map(([k,l])=>`<button data-a="tab" data-k="${k}"${S.tab===k?' aria-current="page"':""}>${l}</button>`).join("");
+ $("#screen").innerHTML=S.tab==="rides"?rides():S.tab==="prov"?prov():S.tab==="shuttle"?shuttle():admin();
+ const c=$("#chat");if(c)c.scrollTop=c.scrollHeight;if(S.focus&&$("#cin"))$("#cin").focus();S.focus=null;S.dk="";placeCar();paint()}
+
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,T=S.trip,d=b.dataset;
+ if(a==="verify"){const m=$("#oe").value;if(!m.includes("@")){toast("Enter your university email address.");return}S.user={uni:$("#ou").value,email:m};S.q.uni=S.user.uni}
+ else if(a==="tab"){S.tab=d.k;S.sel=null}
+ else if(a==="sub"){S.sub=d.k;S.sel=null}
+ else if(a==="search"){S.q={from:$("#f").value,uni:$("#u").value,time:$("#t").value||"07:45"};S.results=RIDES.map(r=>score(r,S.q)).filter(r=>r.dt<=90).sort((x,y)=>y.match-x.match)}
+ else if(a==="open")S.sel=S.results.find(r=>r.id==d.id)
+ else if(a==="back")S.sel=null
+ else if(a==="request"){const r=S.sel;S.trip={ride:r,status:"pending",p:0,rating:0};S.chats.c=[];S.sub="trip";S.sel=null;
+  setTimeout(()=>{if(S.trip&&S.trip.ride===r&&S.trip.status==="pending"){S.trip.status="accepted";post("c",`Hi! Your seat is confirmed. I’ll be at ${r.pickup} at ${r.dep}.`);render()}},2200)}
+ else if(a==="cancel")S.trip=null
+ else if(a==="say")send(d.k,d.t)
+ else if(a==="send"){const i=$("#cin"),t=i.value.trim();if(!t)return;send(d.k,t)}
+ else if(a==="start"){T.status="live";T.p=0;post("c","Journey started. Sharing live location.");clearInterval(S.tm);S.tm=setInterval(()=>{T.p=Math.min(1,T.p+.006);placeCar();const el=$("#eta");if(el)el.textContent=Math.max(1,Math.ceil((1-T.p)*14))+" min";if(T.p>=1){clearInterval(S.tm);T.status="done";render()}},80)}
+ else if(a==="finish"){clearInterval(S.tm);T.status="done";T.p=1}
+ else if(a==="rate")T.rating=+d.n
+ else if(a==="reset"){S.trip=null;S.sub="find"}
+ else if(a==="publish")S.off={from:$("#of").value,t:$("#ot").value,s:+$("#os").value,req:"none"}
+ else if(a==="simreq")S.off.req="open"
+ else if(a==="acc")S.off.req="acc"
+ else if(a==="dec")S.off.req="dec"
+ else if(a==="enq")S.pc=S.pc==+d.id?null:+d.id
+ else if(a==="notify"){S.notify=true;S.toasted=false;toast("We’ll alert you when a shuttle is close.");return}
+ else if(a==="peak"){S.peak=!S.peak;paint();return}
+ else if(a==="add"){S.w+=10;paint();return}
+ else if(a==="less"){S.w=Math.max(0,S.w-10);paint();return}
+ else if(a==="approve"){const x=S.sh[2];x.on=true;x.p=.8;x.seats=30;addLog("Admin approved an extra shuttle");S.dk="";paint();return}
+ else if(a==="reject"){S.snooze=S.tk+40;addLog("Admin rejected the recommendation");S.dk="";paint();return}
+ render()});
+document.addEventListener("change",e=>{if(e.target.id==="pa"||e.target.id==="pm"){S.pf={area:$("#pa").value,max:$("#pm").value};render()}});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="cin"){const s=$('[data-a="send"]');if(s)s.click()}});
+render();
+</script>
+</body>
+</html>
