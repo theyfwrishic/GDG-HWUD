@@ -34,6 +34,5 @@ To try it before hosting: run `python -m http.server 8000` in this folder, then 
 - Crowds that overlap heavily are undercounted. A high, angled camera helps most. You can use `yolov8s.onnx` for better accuracy if the phone copes (change `modelUrl` in `app.js`).
 - Check your university's rules and put up a notice that a camera counts people at the stop.
 
-View the entire Camera Module - https://gdg-hwud-2026.netlify.app
-View the Uniloop - https://uniloop-gdg-2026.netlify.app
+https://gdg-2026-rcas.netlify.app/?s1=https://gdg-rcas-2026.netlify.app&s2=https://papaya-druid-75e568.netlify.app View the interactive tab
 
